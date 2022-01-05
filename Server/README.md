@@ -1,10 +1,6 @@
 # Foxxey Server — part for host at server
 
----
-
 ### First release of server is under active development
-
----
 
 ## Planned in 1.0 release
 
@@ -15,3 +11,4 @@
 - Configuration based on Hoplite.
 - Logging based on logback and kotlin logging.
 - HTTP(S) mod packs files access.
+- Communication with MySQL based on Ktorm.

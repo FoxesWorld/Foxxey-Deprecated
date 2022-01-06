@@ -5,49 +5,72 @@ import (
 	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"io"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 const appName = "Foxxey"
 const windowHeight = 500
 const windowWidth = 500
 
+var hellos = [...]string{
+	"Я готовлю все для запуска Foxxey!",
+	"Как насчет чашечки кофе?",
+	"Just Viktor",
+	"А ты знал, что в лаунчере спрятаны пасхалки?",
+	"Какой же все таки у тебя медленный интернет!",
+	"Не паникуем, Фоксей знает что делает!",
+	"Неужели я снова потерял свои инструменты?",
+	"Если бы не эти ваши люди, все было бы хорошо",
+	"Главное – ничего не сломать",
+	"Может включим музычку? Было бы веселее",
+	"Вся проблема в вот этих ваших интернетах!",
+	"Я ношу файлы, а ты что делаешь?",
+}
+
 func main() {
-	fmt.Println("Started.")
-	fmt.Println("Creating app..")
 	mApp := app.New()
-	fmt.Println("App created. Creating window..")
+	mApp.Settings().SetTheme(foxxeyTheme{})
 	mWindow := mApp.NewWindow(appName)
-	fmt.Println("Window created. Configuring..")
 	mWindow.Resize(fyne.Size{
 		Height: windowHeight,
 		Width:  windowWidth,
 	})
 	mWindow.SetFixedSize(true)
-	fmt.Println("Configured. Adding content..")
+	bind := binding.NewString()
+	topText := widget.NewLabelWithData(bind)
+	topText.Alignment = fyne.TextAlignCenter
+	go func() {
+		for true {
+			rand.Seed(time.Now().UnixNano())
+			err := bind.Set(hellos[rand.Intn(len(hellos))])
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			time.Sleep(5 * time.Second)
+		}
+	}()
 	progressBar := widget.NewProgressBarInfinite()
+	foxxeyImage := canvas.NewImageFromResource(resourceFoxxeyPng)
+	sl := container.New(layout.NewBorderLayout(topText, progressBar, nil, nil), topText, progressBar)
 	content := container.New(
 		layout.NewBorderLayout(
-			nil, progressBar, nil, nil,
-		), progressBar,
+			nil, sl, nil, nil,
+		), sl, foxxeyImage,
 	)
 	mWindow.SetContent(content)
-	fmt.Println("Content added. Starting background process..")
-	go background(mWindow)
-	fmt.Println("Show and run..")
 	mWindow.ShowAndRun()
-	fmt.Println("Stopped.")
-}
-
-func background(window fyne.Window) {
-	fmt.Println("Background started.")
 }
 
 func unzipSource(source, destination string) error {

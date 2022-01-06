@@ -1,0 +1,28 @@
+{
+  "call logging": {
+    "enabled": false,
+    "level": "DEBUG"
+  },
+  "http": {
+    "enabled": true,
+    "host": "localhost",
+    "port": 8080
+  },
+  "https": {
+    "enabled": "false",
+    "key store": {
+      "path": "mykeystore.jks",
+      "type": "jks",
+      "password": "password"
+    },
+    "key": {
+      "alias": "foxesworld",
+      "password": "password"
+    },
+    "host": "foxesworld.ru",
+    "port": 443
+  },
+  "root path": "",
+  "running limit": 10,
+  "request queue limit": 16
+}

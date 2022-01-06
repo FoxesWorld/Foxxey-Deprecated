@@ -10,10 +10,15 @@ val logback = "1.2.9"
 
 plugins {
     kotlin("jvm") version "1.6.10"
+    application
 }
 
 group = "ru.foxesworld.foxxey"
 version = "1.0"
+
+application {
+    mainClass.set("ru.foxesworld.foxxey.server.StartUpKt")
+}
 
 repositories {
     mavenCentral()
@@ -55,6 +60,20 @@ dependencies {
     testImplementation("org.mockito", "mockito-core", mockito)
 }
 
+tasks.create("createServerInfoConfiguration") {
+    doLast {
+        File("$buildDir/resources/main/info.json").apply {
+            parentFile.mkdirs()
+            createNewFile()
+        }.writeText(
+            "{\"version\":\"$version\"}"
+        )
+    }
+}
+
+tasks.processResources {
+    dependsOn("createServerInfoConfiguration")
+}
 /*
 
     The code is only for beautify previous.
@@ -65,7 +84,7 @@ fun ktor(name: String) = "io.ktor:ktor-$name:$ktor"
 
 fun kotlinCoroutines(part: String) = "org.jetbrains.kotlinx:kotlinx-coroutines-$part:$kotlinCoroutines"
 
-fun hoplite(part: String) = "com.sksamuel.hoplite:hoplite-$part:hoplite"
+fun hoplite(part: String) = "com.sksamuel.hoplite:hoplite-$part:$hoplite"
 
 fun ktorm(part: String) = "org.ktorm:ktorm-$part:$ktorm"
 

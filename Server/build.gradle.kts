@@ -7,6 +7,7 @@ val kodein = "7.10.0"
 val ktorm = "3.4.1"
 val log4j = "2.17.1"
 val logback = "1.2.9"
+val kotlinLogging = "2.1.21"
 
 plugins {
     kotlin("jvm") version "1.6.10"
@@ -17,7 +18,7 @@ group = "ru.foxesworld.foxxey"
 version = "1.0"
 
 application {
-    mainClass.set("ru.foxesworld.foxxey.server.StartUpKt")
+    mainClass.set("ru.foxesworld.foxxey.server.LauncherKt")
 }
 
 repositories {
@@ -52,6 +53,7 @@ dependencies {
     implementation(log4j("core"))
     implementation(log4j("api"))
     implementation("ch.qos.logback", "logback-classic", logback)
+    implementation("io.github.microutils", "kotlin-logging", kotlinLogging)
 
     // Testing
     testImplementation(kotlinCoroutines("test"))

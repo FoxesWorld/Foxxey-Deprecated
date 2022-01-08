@@ -36,9 +36,6 @@ dependencies {
     implementation(ktor("network"))
     implementation(ktor("network-tls"))
 
-    // Interface
-    implementation("com.github.ajalt.clikt:clikt:3.3.0")
-
     // Configurations
     implementation(hoplite("core"))
     implementation(hoplite("json"))

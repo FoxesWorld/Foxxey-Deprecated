@@ -1,7 +1,8 @@
 package ru.foxesworld.foxxey.server.di
 
 import com.sksamuel.hoplite.ConfigLoader
-import com.sksamuel.hoplite.PropertySource
+import com.sksamuel.hoplite.addFileSource
+import com.sksamuel.hoplite.addResourceSource
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.server.engine.*
@@ -14,53 +15,49 @@ import ru.foxesworld.foxxey.server.FoxxeyServer
 import ru.foxesworld.foxxey.server.Server
 import ru.foxesworld.foxxey.server.config.InfoConfig
 import ru.foxesworld.foxxey.server.config.KtorServerConfig
-import ru.foxesworld.foxxey.server.config.ServerConfig
+import ru.foxesworld.foxxey.server.config.PluginsConfig
+import ru.foxesworld.foxxey.server.plugin.JarPluginLoader
+import ru.foxesworld.foxxey.server.plugin.PluginLoader
 import java.io.File
 import java.security.KeyStore
-import kotlin.io.path.Path
 
+/**
+ * Dependency injection logic
+ */
 @Suppress("MemberVisibilityCanBePrivate")
 object Modules {
 
+    /**
+     * Release dependency injection logic
+     */
     val release = DI.Module("release") {
-        import(configuration)
-        import(ktor)
-        import(foxxey)
+        import(server)
+        import(ktorServer)
+        import(plugins)
     }
 
-    val foxxey = DI.Module("foxxey") {
+    /**
+     * Server dependency injection logic
+     */
+    val server = DI.Module("server") {
         bindSingleton<Server> {
-            FoxxeyServer(instance())
+            FoxxeyServer(instance(), instance())
         }
-    }
-
-    val configuration = DI.Module("configuration") {
         bindSingleton<InfoConfig> {
             ConfigLoader.Builder()
-                .addSource(PropertySource.resource("/info.json"))
-                .build()
-                .loadConfigOrThrow()
-        }
-        bindSingleton<ServerConfig> {
-            ConfigLoader.Builder()
-                .addSource(PropertySource.resource("/server.json"))
-                .addSource(PropertySource.path(Path("server.json"), optional = true))
-                .build()
-                .loadConfigOrThrow()
-        }
-        bindSingleton<KtorServerConfig> {
-            ConfigLoader.Builder()
-                .addSource(PropertySource.resource("/ktor.json"))
-                .addSource(PropertySource.path(Path("ktor.json"), optional = true))
+                .addResourceSource("/info.json")
                 .build()
                 .loadConfigOrThrow()
         }
     }
 
-    val ktor = DI.Module("ktor") {
+    /**
+     * Ktor server dependency injection logic
+     */
+    val ktorServer = DI.Module("ktor") {
         bindSingleton {
-            val config: KtorServerConfig = instance()
             applicationEngineEnvironment {
+                val config: KtorServerConfig = instance()
                 log = KotlinLogging.logger("ktor.application")
                 rootPath = config.rootPath
                 if (config.https.enabled) {
@@ -89,12 +86,39 @@ object Modules {
                 runningLimit = config.runningLimit
                 requestQueueLimit = config.requestQueueLimit
             }.apply {
-                if (config.callLogging.enabled) {
-                    application.install(CallLogging) {
-                        level = config.callLogging.level
+                application.apply {
+                    if (config.callLogging.enabled) {
+                        install(CallLogging) {
+                            level = config.callLogging.level
+                        }
                     }
                 }
             }
+        }
+        bindSingleton<KtorServerConfig> {
+            val fileName = "ktor.json"
+            ConfigLoader.Builder()
+                .addFileSource(File(fileName), optional = true)
+                .addResourceSource("/$fileName")
+                .build()
+                .loadConfigOrThrow()
+        }
+    }
+
+    /**
+     * Dependency injection logic related to plugins
+     */
+    val plugins = DI.Module("plugins") {
+        bindSingleton<PluginLoader> {
+            JarPluginLoader(instance())
+        }
+        bindSingleton<PluginsConfig> {
+            val fileName = "plugins.json"
+            ConfigLoader.Builder()
+                .addFileSource(File(fileName), optional = true)
+                .addResourceSource("/$fileName")
+                .build()
+                .loadConfigOrThrow()
         }
     }
 }

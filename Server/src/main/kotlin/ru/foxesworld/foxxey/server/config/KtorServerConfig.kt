@@ -13,17 +13,17 @@ import org.slf4j.event.Level
  * @param requestQueueLimit Size of the queue to store ApplicationCall instances that cannot be immediately processed
  */
 data class KtorServerConfig(
-    @ConfigAlias("call logging")
+    @ConfigAlias("callLogging")
     val callLogging: CallLogging,
     @ConfigAlias("https")
     val https: HTTPS,
     @ConfigAlias("http")
     val http: HTTP,
-    @ConfigAlias("root path")
+    @ConfigAlias("rootPath")
     val rootPath: String,
-    @ConfigAlias("running limit")
+    @ConfigAlias("runningLimit")
     val runningLimit: Int,
-    @ConfigAlias("request queue limit")
+    @ConfigAlias("requestQueueLimit")
     val requestQueueLimit: Int
 ) {
 
@@ -50,7 +50,7 @@ data class KtorServerConfig(
     data class HTTPS(
         @ConfigAlias("enabled")
         val enabled: Boolean,
-        @ConfigAlias("key store")
+        @ConfigAlias("keyStore")
         val keyStore: KeyStore,
         @ConfigAlias("key")
         val key: Key,

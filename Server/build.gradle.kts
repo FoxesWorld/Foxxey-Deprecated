@@ -12,6 +12,11 @@ val kotlinLogging = "2.1.21"
 plugins {
     kotlin("jvm") version "1.6.10"
     application
+    id("com.github.johnrengelman.shadow") version "7.1.2"
+}
+
+application {
+    mainClass.set("ru.foxesworld.foxxey.server.LauncherKt")
 }
 
 group = "ru.foxesworld.foxxey"
@@ -67,6 +72,12 @@ tasks.create("createServerInfoConfiguration") {
 
 tasks.processResources {
     dependsOn("createServerInfoConfiguration")
+}
+
+tasks.jar {
+    manifest {
+        attributes["Main-Class"] = application.mainClass.get()
+    }
 }
 
 /*

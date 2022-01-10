@@ -16,10 +16,12 @@ class KtorServerPlugin(info: Info) : Plugin(info) {
 
     override suspend fun start() {
         ktorServer.start()
+        state = State.Started
     }
 
     override suspend fun stop() {
         ktorServer.stop(0, 2000)
+        state = State.Stopped
     }
 
     override suspend fun load() {

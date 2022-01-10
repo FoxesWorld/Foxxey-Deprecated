@@ -2,8 +2,8 @@ package ru.foxesworld.foxxey.server.plugins
 
 import com.sksamuel.hoplite.ConfigAlias
 import org.koin.core.component.KoinComponent
-import ru.foxesworld.foxxey.server.plugins.Plugin.State.Loaded
-import ru.foxesworld.foxxey.server.plugins.Plugin.State.Unloaded
+import ru.foxesworld.foxxey.server.plugins.Plugin.State.*
+import java.io.File
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 open class Plugin(
@@ -12,9 +12,13 @@ open class Plugin(
 
     var state: State = Unloaded
 
-    open suspend fun start() {}
+    open suspend fun start() {
+        state = Started
+    }
 
-    open suspend fun stop() {}
+    open suspend fun stop() {
+        state = Stopped
+    }
 
     open suspend fun load() {
         state = Loaded
@@ -80,5 +84,14 @@ open class Plugin(
         }
 
         override fun toString(): String = "$name v. $version"
+    }
+
+    protected fun File.createDefaultFromResourcesIfNotExists(clazz: Class<*>) {
+        if (exists()) {
+            return
+        }
+        writeBytes(
+            clazz.getResourceAsStream("/$name")!!.readAllBytes()
+        )
     }
 }

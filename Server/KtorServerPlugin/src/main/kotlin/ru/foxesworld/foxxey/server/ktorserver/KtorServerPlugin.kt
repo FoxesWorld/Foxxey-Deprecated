@@ -16,16 +16,16 @@ class KtorServerPlugin(info: Info) : Plugin(info) {
 
     override suspend fun start() {
         ktorServer.start()
-        state = State.Started
+        super.start()
     }
 
     override suspend fun stop() {
         ktorServer.stop(0, 2000)
-        state = State.Stopped
+        super.stop()
     }
 
     override suspend fun load() {
-        File("ktor.json").createDefaultFromResourcesIfNotExists()
+        File("ktor.json").createDefaultFromResourcesIfNotExists(KtorServerPlugin::class.java)
         getKoin().loadModules(listOf(module))
         super.load()
     }
@@ -33,14 +33,5 @@ class KtorServerPlugin(info: Info) : Plugin(info) {
     override suspend fun unload() {
         getKoin().unloadModules(listOf(module))
         super.unload()
-    }
-
-    private fun File.createDefaultFromResourcesIfNotExists() {
-        if (exists()) {
-            return
-        }
-        writeBytes(
-            KtorServerPlugin::class.java.getResourceAsStream("/$name")!!.readAllBytes()
-        )
     }
 }

@@ -7,7 +7,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
-import ru.foxesworld.foxxey.server.classloader.PluginsClassLoader
 import ru.foxesworld.foxxey.server.logging.wrappedRun
 import java.io.File
 import java.io.FileFilter

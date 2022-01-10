@@ -6,10 +6,7 @@ import com.sksamuel.hoplite.addResourceSource
 import kotlinx.coroutines.DelicateCoroutinesApi
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import ru.foxesworld.foxxey.server.FoxxeyLauncher
-import ru.foxesworld.foxxey.server.FoxxeyServer
-import ru.foxesworld.foxxey.server.Launcher
-import ru.foxesworld.foxxey.server.Server
+import ru.foxesworld.foxxey.server.*
 import ru.foxesworld.foxxey.server.plugins.JarPluginsLoader
 import ru.foxesworld.foxxey.server.plugins.PluginsLoader
 import java.io.File
@@ -22,19 +19,19 @@ object Modules {
             FoxxeyLauncher()
         } bind Launcher::class
         single {
-            loadConfigFromFileOrResourceOrThrow<Launcher.Config>("launcher.json")
+            loadConfigFromFileOrResourceOrThrow<Launcher.Config>("configs/launcher.json")
         }
     }
 
     val foxxeyServer = module {
         single {
-            loadConfigFromResource<FoxxeyServer.Info>("info.json")
+            loadConfigFromResource<FoxxeyBaseServer.Info>("configs/info.json")
         }
         single {
             FoxxeyServer(get())
         } bind Server::class
         single {
-            loadConfigFromFileOrResourceOrThrow<Server.Config>("server.json")
+            loadConfigFromFileOrResourceOrThrow<Server.Config>("configs/server.json")
         }
         single {
             JarPluginsLoader()

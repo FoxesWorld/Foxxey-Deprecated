@@ -7,12 +7,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
-import ru.foxesworld.foxxey.server.Server
+import ru.foxesworld.foxxey.server.classloader.PluginsClassLoader
 import ru.foxesworld.foxxey.server.logging.wrappedRun
 import java.io.File
 import java.io.FileFilter
-import java.net.URL
-import java.net.URLClassLoader
 import java.util.*
 import java.util.jar.JarFile
 
@@ -20,9 +18,14 @@ private val log = KotlinLogging.logger { }
 
 class JarPluginsLoader : PluginsLoader {
 
+    private val pluginsClassLoader = PluginsClassLoader(ClassLoader.getSystemClassLoader())
+
     override suspend fun loadPluginsFromDir(dir: File): List<Plugin> {
         if (!dir.isDirectory) {
-            throw IllegalArgumentException("${dir.absolutePath} isn't directory")
+            if (!dir.exists()) {
+                dir.mkdir()
+            }
+            return emptyList()
         }
         val listFiles = dir.listFiles(FileFilter {
             it.extension == "jar"
@@ -88,19 +91,23 @@ class JarPluginsLoader : PluginsLoader {
         if (size < 2) {
             return
         }
+        if (size == 2) {
+            first.hasDependency(last)
+            moveToStart(last)
+            return
+        }
         var currentItemIndex = lastIndex
         while (true) {
-            if (currentItemIndex == 0) {
-                return
-            }
             val currentItem = this[currentItemIndex]
             for (otherItemIndex in 0 until currentItemIndex - 1) {
                 val otherItem = this[otherItemIndex]
                 if (currentItem.hasDependency(otherItem)) {
+                    println("-1")
                     moveToStart(currentItem)
                     break
                 }
                 if (otherItemIndex == currentItemIndex - 1) {
+                    println("-2")
                     currentItemIndex++
                     break
                 }
@@ -146,27 +153,16 @@ class JarPluginsLoader : PluginsLoader {
                 .build()
                 .loadConfigOrThrow<Plugin.Info>()
         }
-        val classLoader = URLClassLoader(
-            arrayOf(
-                URL("jar:file:${file.absolutePath}!/")
-            ),
-            Server::class.java.classLoader
-        )
+        pluginsClassLoader.addPluginJar(file)
         val pluginClass = withContext(Dispatchers.IO) {
-            val loadedClass = Class.forName(pluginInfo.pluginClass, true, classLoader)
+            val loadedClass = Class.forName(pluginInfo.pluginClass, true, pluginsClassLoader)
             loadedClass.asSubclass(Plugin::class.java)
         }
 
         PluginData(pluginClass, pluginInfo, file)
     }
 
-    override suspend fun loadPluginFromFile(file: File): Result<Plugin> = wrappedRun(
-        logging = {
-            onSuccess { millis, result ->
-
-            }
-        }
-    ) {
+    override suspend fun loadPluginFromFile(file: File): Result<Plugin> = wrappedRun {
         file.toJarFile().loadPluginData(file).getOrThrow().newInstance().getOrThrow()
     }
 

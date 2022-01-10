@@ -1,0 +1,8 @@
+{
+  "id": "ktor-server",
+  "name": "Ktor Server",
+  "version-code": 1,
+  "version": "1.0",
+  "dependencies": [],
+  "plugin-class": "ru.foxesworld.foxxey.server.ktorserver.KtorServerPlugin"
+}

@@ -2,31 +2,65 @@ package ru.foxesworld.foxxey.server.logging
 
 import kotlin.system.measureTimeMillis
 
-/**
- * Runs the [action] with catching and measuring time in millis and on success invokes [onSuccess] with the time
- * @param action Some action that returns [T]
- * @param onSuccess Some action on success result with the time as parameter
- * @return The action result
- */
-fun <T> runCatchingWithMeasuring(action: () -> T, onSuccess: (millis: Long) -> Unit): Result<T> {
-    return runCatchingWithMeasuring(action) { millis, _ ->
-        onSuccess.invoke(millis)
+suspend fun <T> wrappedRunNoResult(
+    logging: (ActionLogging<T>.() -> Unit)? = null,
+    action: suspend () -> T
+) {
+    val actionLogging = ActionLogging(
+        action, {}, { _, _ -> }, {}
+    )
+    logging?.let {
+        actionLogging.apply(it)
     }
+    actionLogging.run()
 }
 
-/**
- * Runs the [action] with catching and measuring time in millis and on success invokes [onSuccess] with the time and result
- * @param action Some action that returns [T]
- * @param onSuccess Some action on success result with the time and result as parameters
- * @return The action result
- */
-fun <T> runCatchingWithMeasuring(action: () -> T, onSuccess: (millis: Long, result: T) -> Unit): Result<T> {
-    val result: Result<T>
-    val measuredTimeInMillis = measureTimeMillis {
-        result = runCatching(action)
+suspend fun <T> wrappedRun(
+    logging: (ActionLogging<T>.() -> Unit)? = null,
+    action: suspend () -> T
+): Result<T> {
+    val actionLogging = ActionLogging(
+        action, {}, { _, _ -> }, {}
+    )
+    logging?.let {
+        actionLogging.apply(it)
     }
-    result.onSuccess {
-        onSuccess.invoke(measuredTimeInMillis, it)
+    return actionLogging.run()
+}
+
+@Suppress("MemberVisibilityCanBePrivate")
+class ActionLogging<T>(
+    private val action: suspend () -> T,
+    var beforeRun: () -> Unit,
+    var onSuccess: (millis: Long, result: T) -> Unit,
+    var onFailure: (e: Throwable) -> Unit
+) {
+
+    fun beforeRun(action: () -> Unit) {
+        beforeRun = action
     }
-    return result
+
+    fun onSuccess(action: (millis: Long, result: T) -> Unit) {
+        onSuccess = action
+    }
+
+    fun onFailure(action: (e: Throwable) -> Unit) {
+        onFailure = action
+    }
+
+    suspend fun run(): Result<T> {
+        beforeRun.invoke()
+        val result: Result<T>
+        val measuredTimeInMillis = measureTimeMillis {
+            result = runCatching {
+                action.invoke()
+            }
+        }
+        result.onSuccess {
+            onSuccess.invoke(measuredTimeInMillis, it)
+        }.onFailure {
+            onFailure.invoke(it)
+        }
+        return result
+    }
 }

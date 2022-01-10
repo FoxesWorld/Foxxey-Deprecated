@@ -3,7 +3,7 @@ val kotlinCoroutines = "1.6.0"
 val junitBom = "5.8.2"
 val mockito = "4.2.0"
 val hoplite = "1.4.16"
-val kodein = "7.10.0"
+val koin = "3.1.5"
 val ktorm = "3.4.1"
 val log4j = "2.17.1"
 val logback = "1.2.9"
@@ -30,12 +30,6 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlinCoroutines("core"))
 
-    // Ktor
-    implementation(ktor("server-core"))
-    implementation(ktor("server-netty"))
-    implementation(ktor("network"))
-    implementation(ktor("network-tls"))
-
     // Configurations
     implementation(hoplite("core"))
     implementation(hoplite("json"))
@@ -44,7 +38,7 @@ dependencies {
     implementation(ktorm("core"))
 
     // Dependency injection
-    implementation("org.kodein.di", "kodein-di", kodein)
+    implementation("io.insert-koin", "koin-core", koin)
 
     // Logging
     implementation(log4j("core"))
@@ -56,6 +50,7 @@ dependencies {
     testImplementation(kotlinCoroutines("test"))
     testImplementation(platform("org.junit:junit-bom:$junitBom"))
     testImplementation("org.junit.jupiter", "junit-jupiter")
+    testImplementation("io.insert-koin", "koin-test-junit5", koin)
     testImplementation("org.mockito", "mockito-core", mockito)
 }
 
@@ -73,6 +68,7 @@ tasks.create("createServerInfoConfiguration") {
 tasks.processResources {
     dependsOn("createServerInfoConfiguration")
 }
+
 /*
 
     The code is only for beautify previous.

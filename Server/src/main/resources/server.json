@@ -1,6 +1,7 @@
 {
   "whitelist": {
     "enabled": false,
-    "users": []
-  }
+    "userNicknames": []
+  },
+  "pluginsDir": "plugins/"
 }

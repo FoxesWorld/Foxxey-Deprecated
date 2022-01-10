@@ -1,8 +1,0 @@
-{
-  "name": "Client GUI",
-  "id": "clientgui",
-  "version": "1.0",
-  "version-code": 1,
-  "dependencies": [],
-  "pluginClass": "ru.foxesworld.foxxey.clientgui.ClientGUI"
-}

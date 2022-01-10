@@ -1,4 +1,4 @@
-package ru.foxesworld.foxxey.server.classloader
+package ru.foxesworld.foxxey.server.plugins
 
 import java.io.File
 import java.net.URLClassLoader

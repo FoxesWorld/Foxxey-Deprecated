@@ -11,6 +11,7 @@ val kotlinLogging = "2.1.21"
 
 plugins {
     kotlin("jvm")
+    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 group = "ru.foxesworld.foxxey"
@@ -21,6 +22,10 @@ repositories {
 }
 
 dependencies {
+    // Ktor
+    implementation(ktor("server-core"))
+    implementation(ktor("server-netty"))
+
     // Server
     compileOnly(project(":Server"))
     compileOnly(kotlin("stdlib"))
@@ -33,6 +38,28 @@ dependencies {
     compileOnly(log4j("api"))
     compileOnly("ch.qos.logback", "logback-classic", logback)
     compileOnly("io.github.microutils", "kotlin-logging", kotlinLogging)
+    testImplementation(project(":Server"))
+    testImplementation(kotlin("stdlib"))
+    testImplementation(kotlinCoroutines("core"))
+    testImplementation(hoplite("core"))
+    testImplementation(hoplite("json"))
+    testImplementation(ktorm("core"))
+    testImplementation("io.insert-koin", "koin-core", koin)
+    testImplementation(log4j("core"))
+    testImplementation(log4j("api"))
+    testImplementation("ch.qos.logback", "logback-classic", logback)
+    testImplementation("io.github.microutils", "kotlin-logging", kotlinLogging)
+
+    // Testing
+    testImplementation(kotlinCoroutines("test"))
+    testImplementation(platform("org.junit:junit-bom:$junitBom"))
+    testImplementation("org.junit.jupiter", "junit-jupiter")
+    testImplementation("io.insert-koin", "koin-test-junit5", koin)
+    testImplementation("org.mockito", "mockito-core", mockito)
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 /*

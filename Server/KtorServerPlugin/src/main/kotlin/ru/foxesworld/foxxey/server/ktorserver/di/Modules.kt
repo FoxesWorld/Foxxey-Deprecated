@@ -22,12 +22,14 @@ object Modules {
                 rootPath = config.rootPath
                 if (config.https.enabled) {
                     sslConnector(
-                        keyStore = KeyStore.getInstance(config.https.keyStore.type),
+                        keyStore = KeyStore.getInstance(
+                            File(config.https.keyStore.path),
+                            config.https.keyStore.password.toCharArray()
+                        ),
                         keyStorePassword = { config.https.keyStore.password.toCharArray() },
                         keyAlias = config.https.key.alias,
                         privateKeyPassword = { config.https.key.password.toCharArray() }
                     ) {
-                        keyStorePath = File(config.https.keyStore.path)
                         host = config.https.host
                         port = config.https.port
                     }

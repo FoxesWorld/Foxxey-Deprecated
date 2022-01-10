@@ -18,7 +18,7 @@ interface Server : KoinComponent {
 
     suspend fun stop()
 
-    suspend fun loadPluginsFromDir(dir: File)
+    suspend fun loadPluginsFromDir(dir: String)
 
     suspend fun loadPluginFromFile(file: File)
 

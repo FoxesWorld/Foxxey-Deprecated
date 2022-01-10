@@ -10,6 +10,7 @@ import java.io.File
 private val log = KotlinLogging.logger { }
 
 class FoxxeyServer(info: Info) : Server {
+
     override val version: String = info.version
     override val config: Server.Config by inject()
     private val pluginsLoader: PluginsLoader by inject()
@@ -28,9 +29,7 @@ class FoxxeyServer(info: Info) : Server {
             }
         }
     ) {
-        loadPluginsFromDir(
-            File(config.pluginsDir)
-        )
+        loadPluginsFromDir(config.pluginsDir)
         startPlugins()
     }
 
@@ -68,20 +67,21 @@ class FoxxeyServer(info: Info) : Server {
         start()
     }
 
-    override suspend fun loadPluginsFromDir(dir: File) = wrappedRunNoResult(
+    override suspend fun loadPluginsFromDir(dir: String) = wrappedRunNoResult(
         logging = {
             beforeRun {
-                log.info { "Loading plugins from dir ${dir.path}.." }
+                log.info { "Loading plugins from dir ${dir}.." }
             }
             onSuccess { millis, _ ->
                 log.info { "${plugins.size} plugins loaded in $millis millis." }
             }
             onFailure {
-                log.info(it) { "Loading plugins from dir ${dir.path} failed" }
+                log.info(it) { "Loading plugins from dir ${dir} failed" }
             }
         }
     ) {
-        plugins.addAll(pluginsLoader.loadPluginsFromDir(dir))
+        val loadedPlugins = pluginsLoader.loadPluginsFromDir(File(dir))
+        plugins.addAll(loadedPlugins)
     }
 
     override suspend fun loadPluginFromFile(file: File) = wrappedRunNoResult {

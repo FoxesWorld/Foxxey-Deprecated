@@ -16,9 +16,10 @@ import java.net.URLClassLoader
 import java.util.*
 import java.util.jar.JarFile
 
-private val log = KotlinLogging.logger {  }
+private val log = KotlinLogging.logger { }
 
 class JarPluginsLoader : PluginsLoader {
+
     override suspend fun loadPluginsFromDir(dir: File): List<Plugin> {
         if (!dir.isDirectory) {
             throw IllegalArgumentException("${dir.absolutePath} isn't directory")
@@ -31,8 +32,37 @@ class JarPluginsLoader : PluginsLoader {
             sortByDependencyTree()
         }
         return pluginsData.mapNotNull {
-            it.newInstance().getOrNull()
+            val notInstalledDependencies = it.findNotInstalledDependencies(pluginsData)
+            if (notInstalledDependencies.isEmpty()) {
+                it.newInstance().getOrNull()
+            } else {
+                log.info { "Plugin $it have not installed dependencies, install their to load it\n${notInstalledDependencies.beautifulString}" }
+                null
+            }
         }
+    }
+
+    private val List<Plugin.Info.Dependency>.beautifulString: String
+        get() {
+            val stringBuilder = StringBuilder("\n")
+            forEach {
+                stringBuilder.append("— $it\n")
+            }
+            return stringBuilder.toString()
+        }
+
+    private fun PluginData.findNotInstalledDependencies(installedPluginsData: List<PluginData>): List<Plugin.Info.Dependency> {
+        val notInstalledDependencies = arrayListOf<Plugin.Info.Dependency>()
+        pluginInfo.dependencies.forEach { dependency ->
+            for (installedPluginDataIndex in installedPluginsData.indices) {
+                val installedPluginData = installedPluginsData[installedPluginDataIndex]
+                if (installedPluginData.passesDependency(dependency)) break
+                if (installedPluginDataIndex == installedPluginsData.lastIndex) {
+                    notInstalledDependencies.add(dependency)
+                }
+            }
+        }
+        return notInstalledDependencies
     }
 
     private suspend fun PluginData.newInstance(): Result<Plugin> = wrappedRun(
@@ -142,6 +172,10 @@ class JarPluginsLoader : PluginsLoader {
         val pluginInfo: Plugin.Info,
         val pluginFile: File
     ) {
+
+        fun passesDependency(dependency: Plugin.Info.Dependency): Boolean =
+            pluginInfo.id == dependency.id && pluginInfo.versionCode >= dependency.versionCode.from
+                    && pluginInfo.versionCode <= dependency.versionCode.to
 
         fun hasDependency(pluginData: PluginData) = pluginInfo.hasDependency(pluginData.pluginInfo)
 

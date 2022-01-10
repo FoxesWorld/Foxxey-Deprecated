@@ -2,19 +2,13 @@ package ru.foxesworld.foxxey.server.plugins
 
 import com.sksamuel.hoplite.ConfigAlias
 import org.koin.core.component.KoinComponent
-import org.koin.dsl.module
+import ru.foxesworld.foxxey.server.plugins.Plugin.State.Loaded
 import ru.foxesworld.foxxey.server.plugins.Plugin.State.Unloaded
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 open class Plugin(
     val info: Info
 ) : KoinComponent {
-
-    protected val module = module() {
-        single {
-            this@Plugin
-        }
-    }
 
     var state: State = Unloaded
 
@@ -23,19 +17,11 @@ open class Plugin(
     open suspend fun stop() {}
 
     open suspend fun load() {
-        getKoin().loadModules(
-            listOf(
-                module
-            )
-        )
+        state = Loaded
     }
 
     open suspend fun unload() {
-        getKoin().unloadModules(
-            listOf(
-                module
-            )
-        )
+        state = Unloaded
     }
 
     override fun toString(): String = info.toString()
@@ -85,7 +71,12 @@ open class Plugin(
                 val from: Int,
                 @ConfigAlias("to")
                 val to: Int
-            )
+            ) {
+
+                override fun toString(): String = "from $from to $to"
+            }
+
+            override fun toString(): String = "$id with version code $versionCode"
         }
 
         override fun toString(): String = "$name v. $version"

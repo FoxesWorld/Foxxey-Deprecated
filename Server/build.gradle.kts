@@ -75,8 +75,6 @@ tasks.processResources {
 
  */
 
-fun ktor(name: String) = "io.ktor:ktor-$name:$ktor"
-
 fun kotlinCoroutines(part: String) = "org.jetbrains.kotlinx:kotlinx-coroutines-$part:$kotlinCoroutines"
 
 fun hoplite(part: String) = "com.sksamuel.hoplite:hoplite-$part:$hoplite"

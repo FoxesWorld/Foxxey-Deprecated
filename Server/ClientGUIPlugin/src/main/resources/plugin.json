@@ -1,0 +1,16 @@
+{
+  "id": "client-gui",
+  "name": "Client GUI",
+  "version-code": 1,
+  "version": "1.0",
+  "dependencies": [
+    {
+      "id": "ktor-server",
+      "version-code": {
+        "from": 1,
+        "to": 1
+      }
+    }
+  ],
+  "plugin-class": "ru.foxesworld.foxxey.server.clientgui.ClientGUIPlugin"
+}

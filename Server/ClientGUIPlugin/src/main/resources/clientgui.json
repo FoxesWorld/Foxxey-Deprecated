@@ -1,5 +1,7 @@
 {
   "web-path": "/",
   "web-kit-folder": "webkit",
-  "web-kit-root-file": "index.html"
+  "web-kit-root-file": "index.html",
+  "redirect-web-path": "/bridge",
+  "redirect-base-url": "http://localhost:8080/"
 }

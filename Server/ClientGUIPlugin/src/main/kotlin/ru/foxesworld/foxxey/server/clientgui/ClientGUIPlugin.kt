@@ -32,7 +32,14 @@ class ClientGUIPlugin(info: Info) : Plugin(info) {
 
     private fun Application.configureRoutes() {
         val webKitFolder = File(config.webKitFolder)
+        val redirectBaseUrl =
+            if (config.redirectBaseUrl.endsWith("/")) config.redirectBaseUrl else "${config.redirectBaseUrl}/"
         routing {
+            route(config.redirectWebPath) {
+                get("*") {
+                    call.respondRedirect("$redirectBaseUrl${call.request.path().substringAfterLast("/")}", permanent = true)
+                }
+            }
             route(config.webPath) {
                 install(ContentNegotiation) {
                     json()
@@ -74,6 +81,10 @@ class ClientGUIPlugin(info: Info) : Plugin(info) {
         @ConfigAlias("webKitFolder")
         val webKitFolder: String,
         @ConfigAlias("webKitRootFile")
-        val webKitRootFile: String
+        val webKitRootFile: String,
+        @ConfigAlias("redirectWebPath")
+        val redirectWebPath: String,
+        @ConfigAlias("redirectBaseUrl")
+        val redirectBaseUrl: String
     )
 }

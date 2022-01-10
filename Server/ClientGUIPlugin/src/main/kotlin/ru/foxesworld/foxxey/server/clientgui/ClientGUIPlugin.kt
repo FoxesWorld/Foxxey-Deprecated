@@ -34,10 +34,15 @@ class ClientGUIPlugin(info: Info) : Plugin(info) {
         val webKitFolder = File(config.webKitFolder)
         val redirectBaseUrl =
             if (config.redirectBaseUrl.endsWith("/")) config.redirectBaseUrl else "${config.redirectBaseUrl}/"
+        val redirectWebPath =
+            if (config.redirectWebPath.endsWith("/")) config.redirectWebPath else "${config.redirectWebPath}/"
         routing {
             route(config.redirectWebPath) {
                 get("*") {
-                    call.respondRedirect("$redirectBaseUrl${call.request.path().substringAfterLast("/")}", permanent = true)
+                    call.respondRedirect(
+                        "$redirectBaseUrl${call.request.path().substringAfter(redirectWebPath)}",
+                        permanent = true
+                    )
                 }
             }
             route(config.webPath) {

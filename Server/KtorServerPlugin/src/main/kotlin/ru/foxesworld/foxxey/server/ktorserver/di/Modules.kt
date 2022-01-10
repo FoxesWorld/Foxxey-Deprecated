@@ -8,6 +8,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import mu.KotlinLogging
 import org.koin.core.module.Module
+import ru.foxesworld.foxxey.server.Server
 import ru.foxesworld.foxxey.server.ktorserver.config.KtorServerConfig
 import java.io.File
 import java.security.KeyStore
@@ -59,7 +60,7 @@ object Modules {
         }
         single<KtorServerConfig> {
             ConfigLoader.Builder()
-                .addFileSource(File("ktor.json"))
+                .addFileSource(File(Server.configsFolder, "ktor.json"))
                 .build()
                 .loadConfigOrThrow()
         }

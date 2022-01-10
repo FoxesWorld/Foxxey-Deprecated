@@ -19,33 +19,40 @@ object Modules {
             FoxxeyLauncher()
         } bind Launcher::class
         single {
-            loadConfigFromFileOrResourceOrThrow<Launcher.Config>("configs/launcher.json")
+            createConfigFileIfNotExistsAndLoad<Launcher.Config>("launcher.json")
         }
     }
 
     val foxxeyServer = module {
-        single {
-            loadConfigFromResource<FoxxeyBaseServer.Info>("configs/info.json")
+        single<FoxxeyBaseServer.Info> {
+            ConfigLoader.Builder()
+                .addResourceSource("/info.json")
+                .build()
+                .loadConfigOrThrow()
         }
         single {
             FoxxeyServer(get())
         } bind Server::class
         single {
-            loadConfigFromFileOrResourceOrThrow<Server.Config>("configs/server.json")
+            createConfigFileIfNotExistsAndLoad<Server.Config>("server.json")
         }
         single {
             JarPluginsLoader()
         } bind PluginsLoader::class
     }
 
-    private inline fun <reified T> loadConfigFromResource(fileName: String): T = ConfigLoader.Builder()
-        .addResourceSource("/$fileName")
-        .build()
-        .loadConfigOrThrow()
-
-    private inline fun <reified T> loadConfigFromFileOrResourceOrThrow(fileName: String): T = ConfigLoader.Builder()
-        .addFileSource(File(fileName), optional = true)
-        .addResourceSource("/$fileName")
-        .build()
-        .loadConfigOrThrow()
+    private inline fun <reified T> createConfigFileIfNotExistsAndLoad(fileName: String): T {
+        val configsFolder = Server.configsFolder
+        if (!configsFolder.exists()) {
+            configsFolder.mkdir()
+        }
+        val configFile = File(Server.configsFolder, fileName)
+        configFile.writeBytes(
+            this::class.java.getResourceAsStream("/$fileName")!!.readAllBytes()
+        )
+        return ConfigLoader.Builder()
+            .addFileSource(configFile)
+            .build()
+            .loadConfigOrThrow()
+    }
 }

@@ -65,4 +65,9 @@ interface Server : KoinComponent {
             val userNicknames: Set<String>
         )
     }
+
+    companion object {
+
+        val configsFolder = File("configs")
+    }
 }

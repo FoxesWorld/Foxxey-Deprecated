@@ -70,7 +70,7 @@ class ClientGUIPlugin(info: Info) : Plugin(info) {
     }
 
     override suspend fun load() {
-        File("clientgui.json").createDefaultFromResourcesIfNotExists(ClientGUIPlugin::class.java)
+        localConfigFile("clientgui.json").createDefaultFromResourcesIfNotExists(ClientGUIPlugin::class.java)
         getKoin().loadModules(listOf(module))
         super.load()
     }

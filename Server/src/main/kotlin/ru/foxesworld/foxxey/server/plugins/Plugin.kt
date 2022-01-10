@@ -2,6 +2,7 @@ package ru.foxesworld.foxxey.server.plugins
 
 import com.sksamuel.hoplite.ConfigAlias
 import org.koin.core.component.KoinComponent
+import ru.foxesworld.foxxey.server.Server
 import ru.foxesworld.foxxey.server.plugins.Plugin.State.*
 import java.io.File
 
@@ -84,6 +85,14 @@ open class Plugin(
         }
 
         override fun toString(): String = "$name v. $version"
+    }
+
+    protected fun localConfigFile(configName: String): File {
+        val configsFolder = Server.configsFolder
+        if (!configsFolder.exists()) {
+            configsFolder.mkdir()
+        }
+        return File(configsFolder, configName)
     }
 
     protected fun File.createDefaultFromResourcesIfNotExists(clazz: Class<*>) {

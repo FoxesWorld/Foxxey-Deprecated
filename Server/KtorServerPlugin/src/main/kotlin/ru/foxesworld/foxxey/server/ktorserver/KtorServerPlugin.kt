@@ -5,6 +5,7 @@ import org.koin.core.component.inject
 import org.koin.dsl.module
 import ru.foxesworld.foxxey.server.ktorserver.di.Modules.ktorServer
 import ru.foxesworld.foxxey.server.plugins.Plugin
+import java.io.File
 
 class KtorServerPlugin(info: Info) : Plugin(info) {
 
@@ -22,6 +23,7 @@ class KtorServerPlugin(info: Info) : Plugin(info) {
     }
 
     override suspend fun load() {
+        File("ktor.json").createDefaultFromResourcesIfNotExists()
         getKoin().loadModules(listOf(module))
         super.load()
     }
@@ -29,5 +31,14 @@ class KtorServerPlugin(info: Info) : Plugin(info) {
     override suspend fun unload() {
         getKoin().unloadModules(listOf(module))
         super.unload()
+    }
+
+    private fun File.createDefaultFromResourcesIfNotExists() {
+        if (exists()) {
+            return
+        }
+        writeBytes(
+            KtorServerPlugin::class.java.getResourceAsStream("/$name")!!.readAllBytes()
+        )
     }
 }

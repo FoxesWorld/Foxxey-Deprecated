@@ -2,7 +2,6 @@ package ru.foxesworld.foxxey.server.ktorserver.di
 
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.addFileSource
-import com.sksamuel.hoplite.addResourceSource
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.server.engine.*
@@ -57,12 +56,11 @@ object Modules {
             }
         }
         single<KtorServerConfig> {
-            val fileName = "ktor.json"
             ConfigLoader.Builder()
-                .addFileSource(File(fileName), optional = true)
-                .addResourceSource("/$fileName")
+                .addFileSource(File("ktor.json"))
                 .build()
                 .loadConfigOrThrow()
         }
     }
+
 }

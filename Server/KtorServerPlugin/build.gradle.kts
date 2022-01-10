@@ -11,7 +11,7 @@ val kotlinLogging = "2.1.21"
 
 plugins {
     kotlin("jvm")
-    id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("com.github.johnrengelman.shadow")
 }
 
 group = "ru.foxesworld.foxxey"
@@ -25,6 +25,7 @@ dependencies {
     // Ktor
     implementation(ktor("server-core"))
     implementation(ktor("server-netty"))
+    implementation(ktor("serialization"))
 
     // Server
     compileOnly(project(":Server"))

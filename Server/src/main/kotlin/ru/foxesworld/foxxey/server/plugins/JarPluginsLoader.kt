@@ -85,6 +85,9 @@ class JarPluginsLoader : PluginsLoader {
     }
 
     private fun LinkedList<PluginData>.sortByDependencyTree() {
+        if (size < 2) {
+            return
+        }
         var currentItemIndex = lastIndex
         while (true) {
             if (currentItemIndex == 0) {

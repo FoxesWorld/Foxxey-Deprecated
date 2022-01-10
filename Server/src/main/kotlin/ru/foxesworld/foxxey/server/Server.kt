@@ -52,7 +52,7 @@ interface Server : KoinComponent {
     }
 
     data class Config(
-        @ConfigAlias("pluginsDir")
+        @ConfigAlias("pluginsFolder")
         val pluginsDir: String,
         @ConfigAlias("whitelist")
         val whitelist: Whitelist

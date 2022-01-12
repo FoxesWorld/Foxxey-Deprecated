@@ -68,6 +68,6 @@ interface Server : KoinComponent {
 
     companion object {
 
-        val configsFolder = File("configs")
+        val configsFolder = File("config")
     }
 }

@@ -5,9 +5,10 @@ val mockito = "4.2.0"
 val hoplite = "1.4.16"
 val koin = "3.1.5"
 val ktorm = "3.4.1"
-val log4j = "2.17.1"
+val slf4j = "1.7.29"
 val logback = "1.2.9"
 val kotlinLogging = "2.1.21"
+val picocli = "4.6.2"
 
 plugins {
     kotlin("jvm") version "1.6.10"
@@ -31,6 +32,9 @@ repositories {
 }
 
 dependencies {
+    // CLI
+    implementation("info.picocli", "picocli-shell-jline3", picocli)
+
     // Kotlin
     implementation(kotlin("stdlib"))
     implementation(kotlinCoroutines("core"))
@@ -46,8 +50,6 @@ dependencies {
     implementation("io.insert-koin", "koin-core", koin)
 
     // Logging
-    implementation(log4j("core"))
-    implementation(log4j("api"))
     implementation("ch.qos.logback", "logback-classic", logback)
     implementation("io.github.microutils", "kotlin-logging", kotlinLogging)
 
@@ -68,6 +70,32 @@ tasks.create("createServerInfoConfiguration") {
             "{\"version\":\"$version\"}"
         )
     }
+}
+
+tasks.create<Copy>("collectPluginsToDevData") {
+    dependsOn("shadowJar")
+    destinationDir = File(projectDir, "devdata/plugins")
+    from(
+        subprojects.map {
+            File(it.buildDir, "libs/")
+        }
+    )
+}
+
+tasks.create<Zip>("packageDistribution") {
+    dependsOn("shadowJar")
+    subprojects {
+        dependsOn("${name}:shadowJar")
+    }
+    archiveFileName.set("server.zip")
+    destinationDirectory.set(
+        layout.buildDirectory.dir("dist")
+    )
+    from(
+        subprojects.map {
+            File(it.buildDir, "libs/")
+        }, File(buildDir, "libs/")
+    )
 }
 
 tasks.processResources {
@@ -91,5 +119,3 @@ fun kotlinCoroutines(part: String) = "org.jetbrains.kotlinx:kotlinx-coroutines-$
 fun hoplite(part: String) = "com.sksamuel.hoplite:hoplite-$part:$hoplite"
 
 fun ktorm(part: String) = "org.ktorm:ktorm-$part:$ktorm"
-
-fun log4j(part: String) = "org.apache.logging.log4j:log4j-$part:$log4j"

@@ -4,6 +4,7 @@ import com.sksamuel.hoplite.ConfigAlias
 import org.koin.core.component.KoinComponent
 import ru.foxesworld.foxxey.server.plugins.Plugin
 import java.io.File
+import kotlin.coroutines.CoroutineContext
 
 @Suppress("unused")
 interface Server : KoinComponent {
@@ -11,6 +12,8 @@ interface Server : KoinComponent {
     val version: String
     val config: Config
     val plugins: List<Plugin>
+    val coroutineContext: CoroutineContext
+    var state: State
 
     suspend fun restart()
 
@@ -51,11 +54,21 @@ interface Server : KoinComponent {
         return Result.failure(IllegalArgumentException("Plugin with id $id not exists"))
     }
 
+    enum class State {
+
+        Starting,
+        Started,
+        Stopping,
+        Stopped
+    }
+
     data class Config(
         @ConfigAlias("pluginsFolder")
         val pluginsDir: String,
         @ConfigAlias("whitelist")
-        val whitelist: Whitelist
+        val whitelist: Whitelist,
+        @ConfigAlias("threadsCount")
+        val threadsCount: Int
     ) {
 
         data class Whitelist(

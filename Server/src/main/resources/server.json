@@ -3,5 +3,6 @@
     "enabled": false,
     "userNicknames": []
   },
-  "pluginsFolder": "plugins"
+  "pluginsFolder": "plugins",
+  "threadsCount": 16
 }

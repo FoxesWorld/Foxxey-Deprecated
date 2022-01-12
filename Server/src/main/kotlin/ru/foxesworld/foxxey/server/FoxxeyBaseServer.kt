@@ -1,11 +1,15 @@
 package ru.foxesworld.foxxey.server
 
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.koin.core.component.inject
+import org.koin.core.qualifier.named
 import ru.foxesworld.foxxey.server.logging.wrappedRunNoResult
 import ru.foxesworld.foxxey.server.plugins.Plugin
 import ru.foxesworld.foxxey.server.plugins.PluginsLoader
 import java.io.File
+import kotlin.concurrent.thread
+import kotlin.coroutines.CoroutineContext
 
 private val log = KotlinLogging.logger { }
 
@@ -15,6 +19,13 @@ abstract class FoxxeyBaseServer(info: Info) : Server {
     override val config: Server.Config by inject()
     private val pluginsLoader: PluginsLoader by inject()
     override val plugins: ArrayList<Plugin> = arrayListOf()
+    override val coroutineContext: CoroutineContext by inject(named("server"))
+    override var state: Server.State = Server.State.Stopped
+    private val hookToStopThread: Thread = thread(start = false) {
+        runBlocking(coroutineContext) {
+            this@FoxxeyBaseServer.stop()
+        }
+    }
 
     override suspend fun start() = wrappedRunNoResult(
         logging = {
@@ -29,8 +40,18 @@ abstract class FoxxeyBaseServer(info: Info) : Server {
             }
         }
     ) {
+        if (state != Server.State.Stopped) {
+            throw IllegalStateException("Server already started!")
+        }
+        state = Server.State.Starting
+        addShutdownHookToStop()
         loadPluginsFromDir(config.pluginsDir)
         startPlugins()
+        state = Server.State.Started
+    }
+
+    private suspend fun addShutdownHookToStop() = wrappedRunNoResult {
+        Runtime.getRuntime().addShutdownHook(hookToStopThread)
     }
 
     override suspend fun stop() = wrappedRunNoResult(
@@ -46,8 +67,18 @@ abstract class FoxxeyBaseServer(info: Info) : Server {
             }
         }
     ) {
+        if (state != Server.State.Started) {
+            throw IllegalStateException("Server already stopped!")
+        }
+        state = Server.State.Stopping
+        remShutdownHookToStop()
         stopPlugins()
         unloadPlugins()
+        state = Server.State.Stopped
+    }
+
+    private suspend fun remShutdownHookToStop() = wrappedRunNoResult {
+        Runtime.getRuntime().removeShutdownHook(hookToStopThread)
     }
 
     override suspend fun restart() = wrappedRunNoResult(
@@ -144,6 +175,7 @@ abstract class FoxxeyBaseServer(info: Info) : Server {
     ) {
         if (plugin.state == Plugin.State.Unloaded) {
             plugin.load()
+            plugins.add(plugin)
         }
     }
 
@@ -187,6 +219,7 @@ abstract class FoxxeyBaseServer(info: Info) : Server {
             return@wrappedRunNoResult
         }
         plugin.unload()
+        plugins.remove(plugin)
     }
 
     override suspend fun reloadPlugin(plugin: Plugin) = wrappedRunNoResult(

@@ -82,19 +82,27 @@ tasks.create<Copy>("collectPluginsToDevData") {
     )
 }
 
-tasks.create<Zip>("packageDistribution") {
-    dependsOn("shadowJar")
+tasks.create<Copy>("prepareDistribution") {
     subprojects {
         dependsOn("${name}:shadowJar")
     }
+    destinationDir = layout.buildDirectory.dir("tmp/distribution/plugins").get().asFile
+    from(
+        subprojects.map {
+            File(it.buildDir, "libs/")
+        }
+    )
+}
+
+tasks.create<Zip>("packageDistribution") {
+    dependsOn("shadowJar", "prepareDistribution")
     archiveFileName.set("server.zip")
     destinationDirectory.set(
         layout.buildDirectory.dir("dist")
     )
     from(
-        subprojects.map {
-            File(it.buildDir, "libs/")
-        }, File(buildDir, "libs/")
+        layout.buildDirectory.dir("tmp/distribution"),
+        layout.buildDirectory.dir("libs")
     )
 }
 

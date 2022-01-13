@@ -10,7 +10,7 @@ import ru.foxesworld.foxxey.server.commands.CLICommands
 @CommandLine.Command(
     name = "restart",
     description = [
-        "Reloads the server"
+        "Restarts the server"
     ]
 )
 class RestartCommand : Runnable {

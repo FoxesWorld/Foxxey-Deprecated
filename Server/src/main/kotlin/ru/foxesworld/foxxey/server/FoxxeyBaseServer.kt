@@ -8,6 +8,8 @@ import ru.foxesworld.foxxey.server.logging.wrappedRunNoResult
 import ru.foxesworld.foxxey.server.plugins.Plugin
 import ru.foxesworld.foxxey.server.plugins.PluginsLoader
 import java.io.File
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
 import kotlin.coroutines.CoroutineContext
 
@@ -21,6 +23,7 @@ abstract class FoxxeyBaseServer(info: Info) : Server {
     override val plugins: ArrayList<Plugin> = arrayListOf()
     override val coroutineContext: CoroutineContext by inject(named("server"))
     override var state: Server.State = Server.State.Stopped
+    override val runtimeSignature: String = UUID.randomUUID().toString().replace("-", "fox")
     private val hookToStopThread: Thread = thread(start = false) {
         runBlocking(coroutineContext) {
             this@FoxxeyBaseServer.stop()

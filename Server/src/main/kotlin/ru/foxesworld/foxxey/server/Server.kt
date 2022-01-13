@@ -13,6 +13,7 @@ interface Server : KoinComponent {
     val config: Config
     val plugins: List<Plugin>
     val coroutineContext: CoroutineContext
+    val runtimeSignature: String
     var state: State
 
     suspend fun restart()

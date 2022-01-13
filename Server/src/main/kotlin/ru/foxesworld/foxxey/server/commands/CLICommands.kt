@@ -4,10 +4,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import mu.KotlinLogging
 import picocli.CommandLine
 import ru.foxesworld.foxxey.server.Server
-import ru.foxesworld.foxxey.server.commands.server.RestartCommand
-import ru.foxesworld.foxxey.server.commands.server.StartCommand
-import ru.foxesworld.foxxey.server.commands.server.StopCommand
-import ru.foxesworld.foxxey.server.commands.server.VersionCommand
+import ru.foxesworld.foxxey.server.commands.server.*
 
 private val logger = KotlinLogging.logger {  }
 
@@ -25,7 +22,8 @@ private val logger = KotlinLogging.logger {  }
         "Footer of this command"
     ],
     subcommands = [
-        StartCommand::class, StopCommand::class, RestartCommand::class, VersionCommand::class
+        StartCommand::class, StopCommand::class, RestartCommand::class, VersionCommand::class, PluginsCommand::class,
+        PluginCommand::class, InfoCommand::class, ClearCommand::class
     ]
 )
 class CLICommands(

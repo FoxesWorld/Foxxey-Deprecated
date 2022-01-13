@@ -9,19 +9,24 @@ private val log = KotlinLogging.logger { }
 
 @DelicateCoroutinesApi
 @CommandLine.Command(
-    name = "version",
+    name = "plugins",
     description = [
-        "Prints the server version"
+        "Prints the server loaded plugins"
     ]
 )
-class VersionCommand : Runnable {
+class PluginsCommand : Runnable {
 
     @CommandLine.ParentCommand
     lateinit var parent: CLICommands
 
     override fun run() {
+        val pluginsInfoBuilder = StringBuilder()
+        parent.server.plugins.forEach { plugin ->
+            val info = plugin.info
+            pluginsInfoBuilder.append("\n").append("— [${info.id}] $info")
+        }
         log.info {
-            "Foxxey Server v. ${parent.server.version} © FoxesWorld 2022"
+            "${parent.server.plugins.size} plugins: $pluginsInfoBuilder"
         }
     }
 }

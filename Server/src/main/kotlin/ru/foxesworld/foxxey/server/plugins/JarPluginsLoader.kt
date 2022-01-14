@@ -101,12 +101,10 @@ class JarPluginsLoader : PluginsLoader {
             for (otherItemIndex in 0 until currentItemIndex - 1) {
                 val otherItem = this[otherItemIndex]
                 if (currentItem.hasDependency(otherItem)) {
-                    println("-1")
                     moveToStart(currentItem)
                     break
                 }
                 if (otherItemIndex == currentItemIndex - 1) {
-                    println("-2")
                     currentItemIndex++
                     break
                 }
@@ -116,7 +114,7 @@ class JarPluginsLoader : PluginsLoader {
 
     private fun <T> LinkedList<T>.moveToStart(item: T) {
         remove(item)
-        add(item)
+        add(0, item)
     }
 
     private fun asyncLoadPluginsDataFromFiles(listFiles: Array<File>): LinkedList<PluginData> {

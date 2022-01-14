@@ -101,7 +101,7 @@ class JarPluginsLoader : PluginsLoader {
             val preCurrentItemIndex = currentItemIndex - 1
             for (otherItemIndex in 0..preCurrentItemIndex) {
                 val otherItem = this[otherItemIndex]
-                if (currentItem.hasDependency(otherItem)) {
+                if (otherItem.hasDependency(currentItem)) {
                     moveToStart(currentItem)
                     break
                 }

@@ -73,7 +73,9 @@ tasks.create("createServerInfoConfiguration") {
 }
 
 tasks.create<Copy>("collectPluginsToDevData") {
-    dependsOn("shadowJar")
+    subprojects {
+        dependsOn("${name}:shadowJar")
+    }
     destinationDir = File(projectDir, "devdata/plugins")
     from(
         subprojects.map {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"archive/zip"
+	"errors"
 	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -11,10 +12,13 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"io"
+	"io/ioutil"
+	"log"
 	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -22,6 +26,12 @@ import (
 const appName = "Foxxey"
 const windowHeight = 500
 const windowWidth = 500
+const foxesWorldPath = "/foxesworld"
+const foxxeyPath = "/foxxey"
+const jreUrl = "https://foxesworld.ru:8080/api/jre?os=" + runtime.GOOS
+const runtimeDirName = "runtime"
+
+var appDir string
 
 var hellos = [...]string{
 	"Я готовлю все для запуска Foxxey!",
@@ -36,6 +46,7 @@ var hellos = [...]string{
 	"Может включим музычку? Было бы веселее",
 	"Вся проблема в вот этих ваших интернетах!",
 	"Я ношу файлы, а ты что делаешь?",
+	"Вперед и с песней!",
 }
 
 func main() {
@@ -61,6 +72,7 @@ func main() {
 			time.Sleep(5 * time.Second)
 		}
 	}()
+	go background(mApp)
 	progressBar := widget.NewProgressBarInfinite()
 	foxxeyImage := canvas.NewImageFromResource(resourceFoxxeyPng)
 	sl := container.New(layout.NewBorderLayout(topText, progressBar, nil, nil), topText, progressBar)
@@ -73,12 +85,76 @@ func main() {
 	mWindow.ShowAndRun()
 }
 
+func resolveAppDir() {
+	appDir, _ = os.UserConfigDir()
+	appDir += foxesWorldPath + foxxeyPath
+	_ = os.MkdirAll(appDir, 0777)
+}
+
+func background(app fyne.App) {
+	resolveAppDir()
+	downloadAndUnzipJreIfNotExists()
+	app.Quit()
+}
+
+func downloadAndUnzipJreIfNotExists() {
+	jrePath := appDir + "/" + runtimeDirName
+	if _, err := os.Stat(jrePath); err == nil {
+		log.Println("JRE is downloaded")
+		return
+	}
+	log.Println("JRE isn't downloaded. Downloading..")
+	jreZipPath := appDir + "/jre.zip"
+	downloadJre(jreZipPath)
+	unzipToAppDir(jreZipPath)
+	logFatalIfError(os.Remove(jreZipPath))
+	renameJreDir()
+	log.Println("JRE successfully downloaded")
+}
+
+func renameJreDir() {
+	jreDirName, err := findJreDirAndGetName()
+	logFatalIfError(err)
+	jreDirPath := appDir + "/" + jreDirName
+	logFatalIfError(os.Rename(jreDirPath, appDir+"/"+runtimeDirName))
+}
+
+func findJreDirAndGetName() (string, error) {
+	dir, err := ioutil.ReadDir(appDir)
+	logFatalIfError(err)
+	for _, item := range dir {
+		if item.IsDir() {
+			dirName := item.Name()
+			if strings.Contains(dirName, "jre") {
+				return item.Name(), nil
+			}
+		}
+	}
+	return "", errors.New("jre dir not found")
+}
+
+func unzipToAppDir(zipPath string) {
+	logFatalIfError(unzipSource(zipPath, appDir))
+}
+
+func downloadJre(jreZipPath string) {
+	logFatalIfError(DownloadFile(jreZipPath, jreUrl))
+}
+
+func logFatalIfError(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func unzipSource(source, destination string) error {
 	reader, err := zip.OpenReader(source)
 	if err != nil {
 		return err
 	}
-	defer reader.Close()
+	defer func(reader *zip.ReadCloser) {
+		_ = reader.Close()
+	}(reader)
 
 	destination, err = filepath.Abs(destination)
 	if err != nil {
@@ -116,13 +192,17 @@ func unzipFile(f *zip.File, destination string) error {
 	if err != nil {
 		return err
 	}
-	defer destinationFile.Close()
+	defer func(destinationFile *os.File) {
+		_ = destinationFile.Close()
+	}(destinationFile)
 
 	zippedFile, err := f.Open()
 	if err != nil {
 		return err
 	}
-	defer zippedFile.Close()
+	defer func(zippedFile io.ReadCloser) {
+		_ = zippedFile.Close()
+	}(zippedFile)
 
 	if _, err := io.Copy(destinationFile, zippedFile); err != nil {
 		return err
@@ -136,13 +216,17 @@ func DownloadFile(filepath string, url string) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(resp.Body)
 
 	out, err := os.Create(filepath)
 	if err != nil {
 		return err
 	}
-	defer out.Close()
+	defer func(out *os.File) {
+		_ = out.Close()
+	}(out)
 
 	_, err = io.Copy(out, resp.Body)
 	return err

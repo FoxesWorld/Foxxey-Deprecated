@@ -60,7 +60,7 @@ object Modules {
         }
         single<KtorServerConfig> {
             ConfigLoader.Builder()
-                .addFileSource(File(Server.configsFolder, "ktor.json"))
+                .addFileSource(File(Server.configFolder, "ktor.json"))
                 .build()
                 .loadConfigOrThrow()
         }

@@ -88,7 +88,7 @@ open class Plugin(
     }
 
     protected fun localConfigFile(configName: String): File {
-        val configsFolder = Server.configsFolder
+        val configsFolder = Server.configFolder
         if (!configsFolder.exists()) {
             configsFolder.mkdir()
         }

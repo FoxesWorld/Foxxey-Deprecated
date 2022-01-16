@@ -1,0 +1,16 @@
+{
+  "id": "client-rest-api",
+  "name": "Client REST-API",
+  "version-code": 1,
+  "version": "1.0",
+  "dependencies": [
+    {
+      "id": "ktor-server",
+      "version-code": {
+        "from": 1,
+        "to": 1
+      }
+    }
+  ],
+  "plugin-class": "ru.foxesworld.foxxey.server.clientrestapi.ClientRestApiPlugin"
+}

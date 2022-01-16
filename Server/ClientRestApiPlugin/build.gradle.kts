@@ -26,6 +26,9 @@ dependencies {
     compileOnly(ktor("server-core"))
     compileOnly(ktor("server-netty"))
     compileOnly(ktor("serialization"))
+    testImplementation(ktor("server-core"))
+    testImplementation(ktor("server-netty"))
+    testImplementation(ktor("serialization"))
 
     // Server
     compileOnly(project(":Server"))

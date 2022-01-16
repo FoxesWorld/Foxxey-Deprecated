@@ -1,0 +1,9 @@
+{
+  "root-path": "/api",
+  "jre-path": {
+    "windows": "jre/windows.zip",
+    "linux": "jre/linux.zip",
+    "darwin": "jre/darwin.zip",
+    "default": "jre/linux.zip"
+  }
+}

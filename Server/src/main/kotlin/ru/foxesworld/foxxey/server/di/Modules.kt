@@ -54,11 +54,11 @@ object Modules {
     }
 
     private inline fun <reified T> createConfigFileIfNotExistsAndLoad(fileName: String): T {
-        val configsFolder = Server.configsFolder
+        val configsFolder = Server.configFolder
         if (!configsFolder.exists()) {
             configsFolder.mkdir()
         }
-        val configFile = File(Server.configsFolder, fileName)
+        val configFile = File(Server.configFolder, fileName)
         configFile.writeBytes(
             this::class.java.getResourceAsStream("/$fileName")!!.readAllBytes()
         )

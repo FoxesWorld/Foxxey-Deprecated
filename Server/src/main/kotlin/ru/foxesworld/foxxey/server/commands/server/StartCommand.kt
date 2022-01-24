@@ -4,7 +4,6 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import picocli.CommandLine
-import ru.foxesworld.foxxey.server.commands.CLICommands
 
 @DelicateCoroutinesApi
 @CommandLine.Command(
@@ -13,14 +12,11 @@ import ru.foxesworld.foxxey.server.commands.CLICommands
         "Starts the server"
     ]
 )
-class StartCommand : Runnable {
+class StartCommand : BaseCommand() {
 
-    @CommandLine.ParentCommand
-    lateinit var parent: CLICommands
-
-    override fun run() {
-        GlobalScope.launch(parent.server.coroutineContext) {
-            parent.server.start()
+    override fun execute() {
+        GlobalScope.launch(server.coroutineContext) {
+            server.start()
         }
     }
 }

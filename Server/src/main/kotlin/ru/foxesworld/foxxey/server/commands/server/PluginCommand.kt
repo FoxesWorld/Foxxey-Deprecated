@@ -3,7 +3,6 @@ package ru.foxesworld.foxxey.server.commands.server
 import kotlinx.coroutines.DelicateCoroutinesApi
 import mu.KotlinLogging
 import picocli.CommandLine
-import ru.foxesworld.foxxey.server.commands.CLICommands
 
 private val log = KotlinLogging.logger { }
 
@@ -14,7 +13,7 @@ private val log = KotlinLogging.logger { }
         "Prints the plugin information"
     ]
 )
-class PluginCommand : Runnable {
+class PluginCommand : BaseCommand() {
 
     @CommandLine.Option(
         names = ["id"],
@@ -25,11 +24,8 @@ class PluginCommand : Runnable {
     )
     lateinit var id: String
 
-    @CommandLine.ParentCommand
-    lateinit var parent: CLICommands
-
-    override fun run() {
-        parent.server.findPluginById(id).onFailure {
+    override fun execute() {
+        server.findPluginById(id).onFailure {
             log.info { "Plugin with $id not found" }
         }.onSuccess { plugin ->
             val info = plugin.info
@@ -43,6 +39,7 @@ class PluginCommand : Runnable {
                     |│ Version code: ${info.versionCode}
                     |│ Plugin class: ${info.pluginClass}
                     |│ Dependencies: ${info.dependencies.joinToString(" & ")}
+                    |│ Configs: ${info.configNames.joinToString(" & ")}
                     |└───────────────────────────
                 """.trimMargin()
             }

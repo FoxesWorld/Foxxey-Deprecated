@@ -8,16 +8,18 @@ private val log = KotlinLogging.logger { }
 
 @DelicateCoroutinesApi
 @CommandLine.Command(
-    name = "version",
+    name = "gc",
     description = [
-        "Prints the server version"
-    ]
+        "Call System.gc() method",
+        "DO NOT USE IT IF YOU DON'T KNOW WHAT IT DO"
+    ],
 )
-class VersionCommand : BaseCommand() {
+class GarbageCollectCommand : BaseCommand() {
 
     override fun execute() {
+        System.gc()
         log.info {
-            "Foxxey Server v. ${parent.server.version} © FoxesWorld 2022"
+            """Called.""".trimMargin()
         }
     }
 }

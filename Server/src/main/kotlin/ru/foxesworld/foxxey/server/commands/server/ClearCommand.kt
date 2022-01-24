@@ -3,11 +3,9 @@ package ru.foxesworld.foxxey.server.commands.server
 import kotlinx.coroutines.DelicateCoroutinesApi
 import mu.KotlinLogging
 import picocli.CommandLine
-import ru.foxesworld.foxxey.server.commands.CLICommands
 
 private val log = KotlinLogging.logger { }
 
-@Suppress("unused")
 @DelicateCoroutinesApi
 @CommandLine.Command(
     name = "clear",
@@ -15,12 +13,9 @@ private val log = KotlinLogging.logger { }
         "Clean the console"
     ],
 )
-class ClearCommand : Runnable {
+class ClearCommand : BaseCommand() {
 
-    @CommandLine.ParentCommand
-    lateinit var parent: CLICommands
-
-    override fun run() {
+    override fun execute() {
         log.info {
             """
                                                                    ,-,

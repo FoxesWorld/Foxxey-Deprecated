@@ -25,6 +25,7 @@ repositories {
 
 dependencies {
     api(ktor("server-core"))
+    testImplementation(ktor("server-test-host"))
 }
 
 ///////////////////////////////////////////////////////////////////////////

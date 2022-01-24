@@ -1,3 +1,16 @@
+///////////////////////////////////////////////////////////////////////////
+// Constants
+///////////////////////////////////////////////////////////////////////////
+
+val mainClass = "ru.foxesworld.foxxey.server.LauncherKt"
+val distributionDir = "dist"
+val runDir = "run"
+val infoConfigFile = "info.json"
+
+///////////////////////////////////////////////////////////////////////////
+// Versions
+///////////////////////////////////////////////////////////////////////////
+
 val ktor = "1.6.7"
 val kotlinCoroutines = "1.6.0"
 val junitBom = "5.8.2"
@@ -10,22 +23,25 @@ val logback = "1.2.9"
 val kotlinLogging = "2.1.21"
 val picocli = "4.6.2"
 
+///////////////////////////////////////////////////////////////////////////
+// Project settings
+///////////////////////////////////////////////////////////////////////////
+
 plugins {
     kotlin("jvm") version "1.6.10"
-    application
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 group = "ru.foxesworld.foxxey"
 version = "1.0"
 
-application {
-    mainClass.set("ru.foxesworld.foxxey.server.LauncherKt")
-}
-
 repositories {
     mavenCentral()
 }
+
+///////////////////////////////////////////////////////////////////////////
+// Dependencies
+///////////////////////////////////////////////////////////////////////////
 
 dependencies {
     // CLI
@@ -57,34 +73,24 @@ dependencies {
     testImplementation("org.mockito", "mockito-core", mockito)
 }
 
-tasks.create("createServerInfoConfiguration") {
-    doLast {
-        File("$buildDir/resources/main/info.json").apply {
-            parentFile.mkdirs()
-            createNewFile()
-        }.writeText(
-            "{\"version\":\"$version\"}"
-        )
-    }
-}
+///////////////////////////////////////////////////////////////////////////
+// Tasks
+///////////////////////////////////////////////////////////////////////////
 
-tasks.create<Copy>("collectPluginsToDevData") {
-    subprojects {
-        dependsOn("${name}:shadowJar")
-    }
-    destinationDir = File(projectDir, "devdata/plugins")
-    from(
-        subprojects.map {
-            File(it.buildDir, "libs/")
-        }
+tasks.create("createServerInfoConfiguration") {
+    buildDir.resources.main.infoConfig.apply {
+        parentFile.mkdirs()
+        createNewFile()
+    }.writeText(
+        "{\"version\":\"$version\"}"
     )
 }
 
-tasks.create<Copy>("prepareDistribution") {
+tasks.create<Copy>("collectPlugins") {
     subprojects {
         dependsOn("${name}:shadowJar")
     }
-    destinationDir = layout.buildDirectory.dir("tmp/distribution/plugins").get().asFile
+    destinationDir = buildDir.libs.plugins
     from(
         subprojects.map {
             File(it.buildDir, "libs/")
@@ -93,14 +99,20 @@ tasks.create<Copy>("prepareDistribution") {
 }
 
 tasks.create<Zip>("packageDistribution") {
-    dependsOn("shadowJar", "prepareDistribution")
-    archiveFileName.set("server.zip")
+    dependsOn("shadowJar", "collectPlugins")
     destinationDirectory.set(
-        layout.buildDirectory.dir("dist")
+        buildDir.distribution
     )
     from(
-        layout.buildDirectory.dir("tmp/distribution"),
-        layout.buildDirectory.dir("libs")
+        buildDir.libs
+    )
+}
+
+tasks.create<Copy>("prepareRun") {
+    dependsOn("collectPlugins")
+    destinationDir = buildDir.run
+    from(
+        buildDir.libs
     )
 }
 
@@ -110,15 +122,37 @@ tasks.processResources {
 
 tasks.jar {
     manifest {
-        attributes["Main-Class"] = application.mainClass.get()
+        attributes["Main-Class"] = mainClass
     }
 }
 
-/*
+///////////////////////////////////////////////////////////////////////////
+// Helpers for beautify previous code
+///////////////////////////////////////////////////////////////////////////
 
-    The code is only for beautify previous.
+val buildDir: DirectoryProperty
+    get() = layout.buildDirectory
 
- */
+val DirectoryProperty.libs: File
+    get() = dir("libs").get().asFile
+
+val DirectoryProperty.resources: File
+    get() = dir("resources").get().asFile
+
+val DirectoryProperty.run: File
+    get() = dir(runDir).get().asFile
+
+val DirectoryProperty.distribution: File
+    get() = dir(distributionDir).get().asFile
+
+val File.infoConfig: File
+    get() = File(this, infoConfigFile)
+
+val File.main: File
+    get() = File(this, "main")
+
+val File.plugins: File
+    get() = File(this, "plugins")
 
 fun kotlinCoroutines(part: String) = "org.jetbrains.kotlinx:kotlinx-coroutines-$part:$kotlinCoroutines"
 

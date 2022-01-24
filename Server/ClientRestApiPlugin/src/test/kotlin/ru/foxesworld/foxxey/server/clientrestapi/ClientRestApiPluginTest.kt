@@ -25,7 +25,7 @@ internal class ClientRestApiPluginTest {
                     single {
                         RestApiConfig(
                             "/",
-                            RestApiConfig.JrePath(windows = "", linux = "", darwin = "", default = "")
+                            mapOf()
                         )
                     }
                 }

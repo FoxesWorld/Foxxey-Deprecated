@@ -24,7 +24,7 @@ class ClientRestApiPlugin(info: Info) : Plugin(info) {
         val restApiConfig: RestApiConfig = get()
         applicationEngine.application.routing {
             route(restApiConfig.rootPath) {
-                jre(restApiConfig.jrePath)
+                jre(restApiConfig.jrePaths)
             }
         }
         super.start()

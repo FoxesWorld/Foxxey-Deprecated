@@ -3,40 +3,27 @@ package ru.foxesworld.foxxey.server.clientrestapi
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import ru.foxesworld.foxxey.server.clientrestapi.restapi.RestApiConfig
 import java.io.File
 
 object Routes {
 
-    private lateinit var windowsJreFile: File
-    private lateinit var linuxJreFile: File
-    private lateinit var darwinJreFile: File
-    private lateinit var defaultJreFile: File
+    private val jreMap: HashMap<String, File> = hashMapOf()
 
-    fun Route.jre(jrePath: RestApiConfig.JrePath) {
-        jrePath.initJreVariables()
+    fun Route.jre(jrePaths: Map<String, String>) {
+        jrePaths.initJreVariables()
         get("jre") {
-            when (call.parameters["os"]) {
-                "windows" -> {
-                    call.respondFile(windowsJreFile)
-                }
-                "linux" -> {
-                    call.respondFile(linuxJreFile)
-                }
-                "darwin" -> {
-                    call.respondFile(darwinJreFile)
-                }
-                else -> {
-                    call.respondFile(defaultJreFile)
-                }
+            val os = call.parameters["os"]
+            if (os != null && jreMap.containsKey(os)) {
+                call.respondFile(jreMap[os]!!)
+                return@get
             }
+            call.respondFile(jreMap.firstNotNullOf { it.value })
         }
     }
 
-    private fun RestApiConfig.JrePath.initJreVariables() {
-        windowsJreFile = File(windows)
-        linuxJreFile = File(linux)
-        darwinJreFile = File(darwin)
-        defaultJreFile = File(default)
+    private fun Map<String, String>.initJreVariables() {
+        forEach { (path, filePath) ->
+            jreMap[path] = File(filePath)
+        }
     }
 }

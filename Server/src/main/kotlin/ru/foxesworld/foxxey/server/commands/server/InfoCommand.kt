@@ -3,7 +3,6 @@ package ru.foxesworld.foxxey.server.commands.server
 import kotlinx.coroutines.DelicateCoroutinesApi
 import mu.KotlinLogging
 import picocli.CommandLine
-import ru.foxesworld.foxxey.server.commands.CLICommands
 
 private val log = KotlinLogging.logger { }
 
@@ -14,21 +13,18 @@ private val log = KotlinLogging.logger { }
         "Prints the server information"
     ],
 )
-class InfoCommand : Runnable {
+class InfoCommand : BaseCommand() {
 
-    @CommandLine.ParentCommand
-    lateinit var parent: CLICommands
-
-    override fun run() {
+    override fun execute() {
         log.info {
             """
                     |
                     |┌───────────────────────────
                     |│ Name: Foxxey
-                    |│ State: ${parent.server.state.name}
-                    |│ Version: ${parent.server.version}
-                    |│ Plugins loaded: ${parent.server.plugins.size}
-                    |│ Runtime signature: ${parent.server.runtimeSignature}
+                    |│ State: ${server.state.name}
+                    |│ Version: ${server.version}
+                    |│ Plugins loaded: ${server.plugins.size}
+                    |│ Runtime signature: ${server.runtimeSignature}
                     |│ Development by FoxesWorld.ru
                     |└───────────────────────────
                 """.trimMargin()

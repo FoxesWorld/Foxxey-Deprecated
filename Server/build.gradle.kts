@@ -43,34 +43,60 @@ repositories {
 // Dependencies
 ///////////////////////////////////////////////////////////////////////////
 
-dependencies {
-    // CLI
-    implementation("info.picocli", "picocli-shell-jline3", picocli)
-
-    // Kotlin
-    implementation(kotlin("stdlib"))
-    implementation(kotlinCoroutines("core"))
-
-    // Configurations
-    implementation(hoplite("core"))
-    implementation(hoplite("json"))
-
-    // Database communication
-    implementation(ktorm("core"))
-
-    // Dependency injection
-    implementation("io.insert-koin", "koin-core", koin)
-
-    // Logging
-    implementation("ch.qos.logback", "logback-classic", logback)
-    implementation("io.github.microutils", "kotlin-logging", kotlinLogging)
-
-    // Testing
+val testImplementation: DependencyHandlerScopeRunnable = {
+    // Coroutines
     testImplementation(kotlinCoroutines("test"))
+    // Junit
     testImplementation(platform("org.junit:junit-bom:$junitBom"))
     testImplementation("org.junit.jupiter", "junit-jupiter")
+    // Koin
     testImplementation("io.insert-koin", "koin-test-junit5", koin)
+    // Mockito
     testImplementation("org.mockito", "mockito-core", mockito)
+}
+
+val dependenciesProvider: DependenciesProvider = { add ->
+    // CLI
+    add("info.picocli:picocli-shell-jline3:$picocli")
+
+    // Kotlin
+    add(kotlinCoroutines("core"))
+
+    // Configurations
+    add(hoplite("core"))
+    add(hoplite("json"))
+
+    // Database communication
+    add(ktorm("core"))
+
+    // Dependency injection
+    add("io.insert-koin:koin-core:$koin")
+
+    // Logging
+    add("ch.qos.logback:logback-classic:$logback")
+    add("io.github.microutils:kotlin-logging:$kotlinLogging")
+}
+
+dependencies {
+    dependenciesProvider {
+        implementation(it)
+    }
+    testImplementation.invoke(this)
+}
+
+subprojects {
+    plugins.apply("com.github.johnrengelman.shadow")
+    plugins.withType(JavaPlugin::class.java) {
+        dependencies {
+            compileOnly(parent!!)
+            testImplementation(parent!!)
+            dependenciesProvider {
+                compileOnly(it)
+                testImplementation(it)
+            }
+            testImplementation()
+        }
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -129,6 +155,9 @@ tasks.jar {
 ///////////////////////////////////////////////////////////////////////////
 // Helpers for beautify previous code
 ///////////////////////////////////////////////////////////////////////////
+
+typealias DependencyHandlerScopeRunnable = DependencyHandlerScope.() -> Unit
+typealias DependenciesProvider = ((Any) -> Unit) -> Unit
 
 val buildDir: DirectoryProperty
     get() = layout.buildDirectory

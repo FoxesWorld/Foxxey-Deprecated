@@ -12,5 +12,8 @@
       }
     }
   ],
-  "plugin-class": "ru.foxesworld.foxxey.server.clientrestapi.ClientRestApiPlugin"
+  "plugin-class": "ru.foxesworld.foxxey.server.clientrestapi.ClientRestApiPlugin",
+  "config-names": [
+    "restapi.json"
+  ]
 }

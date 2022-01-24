@@ -83,6 +83,22 @@ class JarPluginsLoader : PluginsLoader {
     ) {
         pluginClass.getDeclaredConstructor(pluginInfo::class.java).newInstance(pluginInfo).apply {
             load()
+            val configNames = pluginInfo.configNames
+            if (configNames.isEmpty()) {
+                return@apply
+            }
+            val pluginConfigFolder = pluginInfo.configFolder
+            pluginConfigFolder.mkdirs()
+            configNames.forEach { configName ->
+                val configFile = File(pluginConfigFolder, configName)
+                if (configFile.exists()) {
+                    return@forEach
+                }
+                configFile.createNewFile()
+                pluginsClassLoader.getResourceAsStream(configName)?.use {
+                    configFile.writeBytes(it.readAllBytes())
+                }
+            }
         }
     }
 

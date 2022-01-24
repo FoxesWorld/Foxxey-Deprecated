@@ -4,5 +4,8 @@
   "version-code": 1,
   "version": "1.0",
   "dependencies": [],
-  "plugin-class": "ru.foxesworld.foxxey.server.ktorserver.KtorServerPlugin"
+  "plugin-class": "ru.foxesworld.foxxey.server.ktorserver.KtorServerPlugin",
+  "config-names": [
+    "ktor.json"
+  ]
 }

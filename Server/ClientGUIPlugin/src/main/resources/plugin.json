@@ -12,5 +12,8 @@
       }
     }
   ],
-  "plugin-class": "ru.foxesworld.foxxey.server.clientgui.ClientGUIPlugin"
+  "plugin-class": "ru.foxesworld.foxxey.server.clientgui.ClientGUIPlugin",
+  "config-names": [
+    "clientgui.json"
+  ]
 }

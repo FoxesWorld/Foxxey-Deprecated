@@ -6,31 +6,20 @@ import org.koin.dsl.module
 import ru.foxesworld.foxxey.server.ktorserver.di.Modules.ktorServer
 import ru.foxesworld.foxxey.server.plugins.Plugin
 
-class KtorServerPlugin(info: Info) : Plugin(info) {
-
-    private val module = module {
-        ktorServer()
+class KtorServerPlugin(info: Info) : Plugin(
+    info = info,
+    module = module {
+        ktorServer(info)
     }
+) {
+
     private val ktorServer: ApplicationEngine by inject()
 
-    override suspend fun start() {
-        ktorServer.start()
-        super.start()
+    override suspend fun onStart() {
+        ktorServer.start(wait = false)
     }
 
-    override suspend fun stop() {
+    override suspend fun onStop() {
         ktorServer.stop(0, 2000)
-        super.stop()
-    }
-
-    override suspend fun load() {
-        localConfigFile("ktor.json").createDefaultFromResourcesIfNotExists(KtorServerPlugin::class.java)
-        getKoin().loadModules(listOf(module))
-        super.load()
-    }
-
-    override suspend fun unload() {
-        getKoin().unloadModules(listOf(module))
-        super.unload()
     }
 }

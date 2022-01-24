@@ -2,30 +2,44 @@ package ru.foxesworld.foxxey.server.plugins
 
 import com.sksamuel.hoplite.ConfigAlias
 import org.koin.core.component.KoinComponent
+import org.koin.core.module.Module
 import ru.foxesworld.foxxey.server.Server
 import ru.foxesworld.foxxey.server.plugins.Plugin.State.*
 import java.io.File
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
-open class Plugin(
-    val info: Info
+abstract class Plugin(
+    val info: Info,
+    val module: Module? = null
 ) : KoinComponent {
 
     var state: State = Unloaded
 
-    open suspend fun start() {
+    suspend fun start() {
+        onStart()
         state = Started
     }
 
-    open suspend fun stop() {
+    open suspend fun onStart() {}
+
+    suspend fun stop() {
+        onStop()
         state = Stopped
     }
 
-    open suspend fun load() {
+    open suspend fun onStop() {}
+
+    fun load() {
+        module?.run {
+            getKoin().loadModules(listOf(this))
+        }
         state = Loaded
     }
 
-    open suspend fun unload() {
+    fun unload() {
+        module?.run {
+            getKoin().unloadModules(listOf(this))
+        }
         state = Unloaded
     }
 
@@ -51,7 +65,10 @@ open class Plugin(
         @ConfigAlias("dependencies")
         val dependencies: Set<Dependency>,
         @ConfigAlias("pluginClass")
-        val pluginClass: String
+        val pluginClass: String,
+        @ConfigAlias("configNames")
+        val configNames: List<String>,
+        val configFolder: File = File(Server.configFolder, id)
     ) {
 
         fun hasDependency(info: Info): Boolean {
@@ -85,22 +102,5 @@ open class Plugin(
         }
 
         override fun toString(): String = "$name v. $version"
-    }
-
-    protected fun localConfigFile(configName: String): File {
-        val configsFolder = Server.configFolder
-        if (!configsFolder.exists()) {
-            configsFolder.mkdir()
-        }
-        return File(configsFolder, configName)
-    }
-
-    protected fun File.createDefaultFromResourcesIfNotExists(clazz: Class<*>) {
-        if (exists()) {
-            return
-        }
-        writeBytes(
-            clazz.getResourceAsStream("/$name")!!.readAllBytes()
-        )
     }
 }

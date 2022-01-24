@@ -16,17 +16,17 @@ import ru.foxesworld.foxxey.server.clientgui.di.Modules.configuration
 import ru.foxesworld.foxxey.server.plugins.Plugin
 import java.io.File
 
-class ClientGUIPlugin(info: Info) : Plugin(info) {
-
-    private val module = module {
-        configuration()
+class ClientGUIPlugin(info: Info) : Plugin(
+    info = info,
+    module = module {
+        configuration(info)
     }
+) {
     private val ktorServer: Application by inject()
     private val config: Config by inject()
 
-    override suspend fun start() {
+    override suspend fun onStart() {
         ktorServer.configureRoutes()
-        super.start()
     }
 
     private fun Application.configureRoutes() {
@@ -66,17 +66,6 @@ class ClientGUIPlugin(info: Info) : Plugin(info) {
                 }
             }
         }
-    }
-
-    override suspend fun load() {
-        localConfigFile("clientgui.json").createDefaultFromResourcesIfNotExists(ClientGUIPlugin::class.java)
-        getKoin().loadModules(listOf(module))
-        super.load()
-    }
-
-    override suspend fun unload() {
-        getKoin().unloadModules(listOf(module))
-        super.unload()
     }
 
     data class Config(

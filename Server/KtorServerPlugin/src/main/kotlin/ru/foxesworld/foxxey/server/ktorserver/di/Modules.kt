@@ -9,14 +9,14 @@ import io.ktor.server.netty.*
 import mu.KotlinLogging
 import org.koin.core.module.Module
 import org.koin.dsl.bind
-import ru.foxesworld.foxxey.server.Server
 import ru.foxesworld.foxxey.server.ktorserver.config.KtorServerConfig
+import ru.foxesworld.foxxey.server.plugins.Plugin
 import java.io.File
 import java.security.KeyStore
 
 object Modules {
 
-    fun Module.ktorServer() {
+    fun Module.ktorServer(info: Plugin.Info) {
         single {
             val applicationEngine: ApplicationEngine = get()
             applicationEngine.application
@@ -65,7 +65,7 @@ object Modules {
         }
         single<KtorServerConfig> {
             ConfigLoader.Builder()
-                .addFileSource(File(Server.configFolder, "ktor.json"))
+                .addFileSource(File(info.configFolder, "ktor.json"))
                 .build()
                 .loadConfigOrThrow()
         }

@@ -11,19 +11,10 @@ private val logger = KotlinLogging.logger {  }
 @DelicateCoroutinesApi
 @CommandLine.Command(
     name = "",
-    description = [
-        "My description!",
-        "It's really wonderful!"
-    ],
-    header = [
-        "Header of this command"
-    ],
-    footer = [
-        "Footer of this command"
-    ],
     subcommands = [
         StartCommand::class, StopCommand::class, RestartCommand::class, VersionCommand::class, PluginsCommand::class,
-        PluginCommand::class, InfoCommand::class, ClearCommand::class
+        PluginCommand::class, InfoCommand::class, ClearCommand::class, LoadCommand::class, MemoryCommand::class,
+        GarbageCollectCommand::class, UnloadCommand::class
     ]
 )
 class CLICommands(

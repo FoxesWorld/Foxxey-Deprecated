@@ -12,7 +12,7 @@ import ru.foxesworld.foxxey.server.plugins.Plugin
 internal class ClientRestApiPluginTest {
 
     @Test
-    fun `WHEN plugins IS starting THEN no exception HAS thrown`() {
+    fun `WHEN plugin IS starting THEN no exception HAS thrown`() {
         startKoin {
             modules(
                 module {

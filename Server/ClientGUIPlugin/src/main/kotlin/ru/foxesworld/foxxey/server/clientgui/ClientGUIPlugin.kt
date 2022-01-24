@@ -8,7 +8,6 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.serialization.*
-import io.ktor.server.engine.*
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonArray
 import org.koin.core.component.inject
@@ -22,11 +21,11 @@ class ClientGUIPlugin(info: Info) : Plugin(info) {
     private val module = module {
         configuration()
     }
-    private val ktorServer: ApplicationEngine by inject()
+    private val ktorServer: Application by inject()
     private val config: Config by inject()
 
     override suspend fun start() {
-        ktorServer.application.configureRoutes()
+        ktorServer.configureRoutes()
         super.start()
     }
 

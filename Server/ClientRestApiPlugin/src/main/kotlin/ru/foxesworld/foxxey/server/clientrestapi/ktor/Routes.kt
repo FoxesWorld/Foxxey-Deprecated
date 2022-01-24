@@ -17,7 +17,7 @@ object Routes {
                 call.respondFile(osToJreFileMap[os]!!)
                 return@get
             }
-            call.respondFile(osToJreFileMap.firstNotNullOf { it.value })
+            call.respondFile(osToJreFileMap["default"]!!)
         }
     }
 }

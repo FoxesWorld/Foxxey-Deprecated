@@ -9,7 +9,7 @@ import ru.foxesworld.foxxey.server.plugins.Plugin
 internal class KtorServerPluginTest : KoinTest {
 
     @Test
-    fun `Plugin should to starts normally`() {
+    fun `WHEN plugin IS starting THEN no exception HAS thrown`() {
         startKoin {
         }
         val plugin = KtorServerPlugin(
@@ -19,7 +19,8 @@ internal class KtorServerPluginTest : KoinTest {
                 versionCode = 0,
                 version = "",
                 dependencies = setOf(),
-                pluginClass = ""
+                pluginClass = "",
+                configNames = emptyList()
             )
         )
         runBlocking {

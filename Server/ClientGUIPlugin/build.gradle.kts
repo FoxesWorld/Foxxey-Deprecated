@@ -40,4 +40,9 @@ tasks.test {
 // Helpers for beautify previous code
 ///////////////////////////////////////////////////////////////////////////
 
+fun DependencyHandlerScope.api(any: Any) {
+    compileOnly(any)
+    testImplementation(any)
+}
+
 fun ktor(name: String) = "io.ktor:ktor-$name:$ktor"

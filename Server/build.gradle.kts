@@ -88,11 +88,9 @@ subprojects {
     plugins.apply("com.github.johnrengelman.shadow")
     plugins.withType(JavaPlugin::class.java) {
         dependencies {
-            compileOnly(parent!!)
-            testImplementation(parent!!)
+            api(parent!!)
             dependenciesProvider {
-                compileOnly(it)
-                testImplementation(it)
+                api(it)
             }
             testImplementation()
         }
@@ -182,6 +180,11 @@ val File.main: File
 
 val File.plugins: File
     get() = File(this, "plugins")
+
+fun DependencyHandlerScope.api(any: Any) {
+    compileOnly(any)
+    testImplementation(any)
+}
 
 fun kotlinCoroutines(part: String) = "org.jetbrains.kotlinx:kotlinx-coroutines-$part:$kotlinCoroutines"
 

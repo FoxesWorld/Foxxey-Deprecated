@@ -8,6 +8,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import mu.KotlinLogging
 import org.koin.core.module.Module
+import org.koin.dsl.bind
 import ru.foxesworld.foxxey.server.Server
 import ru.foxesworld.foxxey.server.ktorserver.config.KtorServerConfig
 import java.io.File
@@ -16,6 +17,10 @@ import java.security.KeyStore
 object Modules {
 
     fun Module.ktorServer() {
+        single {
+            val applicationEngine: ApplicationEngine = get()
+            applicationEngine.application
+        } bind Application::class
         single {
             applicationEngineEnvironment {
                 val config: KtorServerConfig = get()

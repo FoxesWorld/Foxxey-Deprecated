@@ -7,7 +7,7 @@
             <onMismatch>DENY</onMismatch>
         </filter>
         <encoder>
-            <pattern>%d{HH:mm:ss} %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+            <pattern>@|italic,cyan %d{HH:mm:ss}|@ @|cyan %level [%thread] %logger{10} [%file:%line]|@ %msg%n</pattern>
         </encoder>
     </appender>
 

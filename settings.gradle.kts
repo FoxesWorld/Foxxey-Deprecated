@@ -1,7 +1,5 @@
-rootProject.name = "Foxxey"
-include("Client")
-include("Server")
-include("Api")
-include("Server:KtorServerPlugin")
-include("Server:ClientGUIPlugin")
-include("Server:ClientRestApiPlugin")
+rootProject.name = "foxxey"
+include("client")
+include("server")
+include("api")
+include("server:ktor-plugin")
